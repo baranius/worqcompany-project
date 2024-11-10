@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.11
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - ELASTIC_PASSWORD=worqcompany  
+    ports:
+      - "9200:9200"  
+    networks:
+      - fastapi_network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.11
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=worqcompany  
+    ports:
+      - "5601:5601"  
+    depends_on:
+      - elasticsearch
+    networks:
+      - fastapi_network
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.17.11
+    container_name: logstash
+    environment:
+      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=worqcompany
+    ports:
+      - "5001:5000"  
+      - "5044:5044" 
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf  
+    depends_on:
+      - elasticsearch
+    networks:
+      - fastapi_network
+
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=S3c23t
+      - POSTGRES_USER=test_user
+      - POSTGRES_DB=worqcompany
+    networks:
+      - fastapi_network
+
+  main_service:
+    build:
+      context: ./main_service  
+      dockerfile: Dockerfile  
+    container_name: main_service_fastapi
+    ports:
+      - "8000:8000"  
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=False
+      - LOG_LEVEL=DEBUG
+      - API_TITLE=MAIN SERVICE
+      - APP_PORT=8000
+      - POSTGRES_CONN=postgresql+psycopg2://test_user:S3c23t@postgres:5432/worqcompany
+      - VIRTUAL_API_URL=http://virtual_service:8001
+      - LOGSTASH_URL=logstash
+      - LOGSTASH_PORT=5000
+    depends_on:
+      - logstash
+      - postgres
+    networks:
+      - fastapi_network
+
+  virtual_service:
+    build:
+      context: ./virtual_service  
+      dockerfile: Dockerfile  
+    container_name: virtual_service_fastapi
+    ports:
+      - "8001:8001"  
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=False
+      - LOG_LEVEL=DEBUG
+      - API_TITLE=VIRTUAL SERVICE
+      - APP_PORT=8001
+      - MAIN_API_URL=http://main_service:8000
+      - LOGSTASH_URL=logstash
+      - LOGSTASH_PORT=5000
+    depends_on:
+      - logstash
+      - postgres
+    networks:
+      - fastapi_network
+
+
+networks:
+  fastapi_network:
+    driver: bridge
