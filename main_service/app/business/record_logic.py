@@ -17,8 +17,8 @@ class RecordLogic:
     @inject
     def __init__(
             self, 
-            record_data: RecordData | None = Depends(RecordData), 
-            virtual_api: VirtualApiClient | None = Depends(VirtualApiClient)
+            record_data: RecordData = Depends(RecordData), 
+            virtual_api: VirtualApiClient = Depends(VirtualApiClient)
         ):
         self.record_data = record_data
         self.virtual_api = virtual_api
@@ -29,7 +29,7 @@ class RecordLogic:
         entity.description = request.description,
         entity.created_at = datetime.now(),
         entity.status = RecordStatus.CREATED,
-        self.record_data.save(entity)
+        entity = self.record_data.save(entity)
 
         asyncio.create_task(self.virtual_api.post_process(entity.id))
 

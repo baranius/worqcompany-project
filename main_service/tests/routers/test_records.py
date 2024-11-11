@@ -13,23 +13,21 @@ from app.routers.records import save_record, update_process, get_logic
 client = TestClient(app)
 
 @pytest.fixture
-def sample_record_request():
-    return RecordRequest(name="name", description="description")
-
-@pytest.fixture
 def sample_record_process_request():
     return RecordProcessRequest(id=str(uuid.uuid4()), success=True)
 
 @pytest.fixture
 def mock_record_logic():
     with patch("app.routers.records.get_logic") as mock_logic:
-        yield mock_logic.return_value
+        yield mock_logic
 
 
 # Tests for the /record endpoint
 @pytest.mark.asyncio
-async def test_save_record_success(sample_record_request, mock_record_logic):
+async def test_save_record_success(mock_record_logic):
+    sample_record_request = RecordRequest(name="name", description="description")
     logic_response = RecordResponse(id=str(uuid.uuid4()), created_at=datetime.now())
+    
     mock_record_logic.create = AsyncMock()
     mock_record_logic.create.return_value = logic_response
 
@@ -40,7 +38,8 @@ async def test_save_record_success(sample_record_request, mock_record_logic):
     mock_record_logic.create.assert_called_once()
 
 @pytest.mark.asyncio
-async def test_save_record_failure(sample_record_request, mock_record_logic):
+async def test_save_record_failure(mock_record_logic):
+    sample_record_request = RecordRequest(name="name", description="description")
     mock_record_logic.create = AsyncMock()
     mock_record_logic.create.side_effect=Exception("Unexpected error")
 
