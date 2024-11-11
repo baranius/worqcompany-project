@@ -20,7 +20,7 @@ This is a sample project that requested by the WorqCompany for assesment purpose
 
 ## System Topology
 
-![plot](network-topology.jpg)
+![plot](system-topology.jpg)
 
 ### Main Service
 - Saves record to database
