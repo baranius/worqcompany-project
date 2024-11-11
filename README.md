@@ -1,4 +1,4 @@
-# WroqCompany Assesment Project
+# WorqCompany Assesment Project
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.13%2B-blue)
@@ -6,28 +6,37 @@
 This is a sample project that requested by the WorqCompany for assesment purpose.
 
 ## Table of Contents
-- [Purpose](#purpose)
+- [Task](#task)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Running Services](#running-services)
+- [Testing Services](#testing-services)
 - [Running Tests](#running-tests)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
 
-## Purpose
+## Task
 - Creating a Main Service in 3-Tier Architecture that supports SAGA Choreography 
-- Creating a Virtual Service for SAGA execution
+- Creating a Virtual Service    for SAGA execution
 - Both services are written with FAS
+
+## System Topology
+
+## Business Flow
 
 ## Installation
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/calculator-project.git
-    cd calculator-project
+    git clone https://github.com/baranius/worqcompany-project.git
+    cd worqcompany-project
     ```
 
-2. Create and activate a virtual environment:
+2. The repository consists of 2 different applications. The steps below requires you to pick preferred project first and run them for each project:
+    ```bash
+    cd main_serivce
+    # or
+    cd virtual_service
+
+3. Create and activate a virtual environment:
     ```bash
     python3 -m venv venv
     source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
@@ -38,19 +47,37 @@ This is a sample project that requested by the WorqCompany for assesment purpose
     pip install -r requirements.txt
     ```
 
-## Usage
+## Running Services
+- Go to your download path
+    ```bash
+    cd <your-download-path>/worqcompany-project
+    ```
 
-```python
-from calculator import Calculator
-from my_logger import Logger  # Replace with your logger
+- Run docker-compose
+    ```bash
+    docker-compose up
+    ```
 
-logger = Logger()
-calc = Calculator(logger=logger)
+## Testing Services
+- When the `docker-compose up` command executed successfully:
+  - Main Service : http://localhost:8000
+  - Virtual Service : http://localhost:8001
+  - Kibana: http://localhost:5601
+  - PostgreSQL: 
+    - Host: localhost
+    - Port: 5432
+    - User: test_user
+    - Password: S3c23t
 
-# Perform some operations
-result_add = calc.add(2, 3)
-result_divide = calc.divide(10, 2)
+## Running Tests
+Tests are written with pytest. To run the tests:
 
-print(f"Addition Result: {result_add}")
-print(f"Division Result: {result_divide}")
+```bash
+cd main_service
+PYTHONPATH=./ pytest tests/
 
+# or
+
+cd virtual_service
+PYTHONPATH=./ pytest tests/
+```
