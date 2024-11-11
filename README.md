@@ -20,7 +20,23 @@ This is a sample project that requested by the WorqCompany for assesment purpose
 
 ## System Topology
 
+![plot](network-topology.jpg)
+
+### Main Service
+- Saves record to database
+- Sends logs to kibana
+
+### Virtual service
+- Sends audit logs to kibana
+   
+
 ## Business Flow
+![plot](request-flow.jpg)
+
+- The request sent by the client being saved to database in `CREATED` status
+- When the **Virtual Service** proceses the request successfully; **Main Service** gets notified by **Virtual Service** about the situation
+- The **Record**'s status gets updated as `PROCESSED` or `FAILED` accordingly
+
 
 ## Installation
 
