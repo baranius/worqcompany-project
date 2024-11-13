@@ -16,7 +16,7 @@ async def test_post_process_success():
         await main_api_client.post_process(record_id, success_status)
 
         mock_post.assert_called_once_with(
-            f"{MAIN_API_URL}/record/process",
+            f"{MAIN_API_URL}/record/status",
             json={"id": str(record_id), "success": success_status}
         )
 
@@ -35,6 +35,6 @@ async def test_post_process_failure():
         assert "SAGA Failed with status code (400)" in str(excinfo.value)
 
         mock_post.assert_called_once_with(
-            f"{MAIN_API_URL}/record/process",
+            f"{MAIN_API_URL}/record/status",
             json={"id": str(record_id), "success": success_status}
         )
